@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>生活的一部分，就醬點！｜ 線上極速點餐</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 pb-28 tap-highlight-transparent">
+
+    <!-- 頂部品牌 Header -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+            <div>
+                <span class="inline-block px-2 py-0.5 bg-orange-100 text-orange-600 text-xs font-bold rounded-full mb-0.5">生活管家·在地好味</span>
+                <h1 class="text-lg font-black text-gray-900 tracking-tight flex items-center gap-1.5">
+                    <span>生活的一部分，就醬點！</span>
+                    <span class="text-xs font-normal text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                        <i class="fa-solid fa-circle text-[8px] mr-1 animate-pulse"></i>營業中
+                    </span>
+                </h1>
+            </div>
+            <div class="text-right">
+                <span class="text-xs text-gray-400 block">台東都蘭 ✕ 寶桑服務站</span>
+                <span class="text-xs text-orange-600 font-semibold"><i class="fa-solid fa-motorcycle mr-1"></i>30分鐘速達</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 門市公告與推薦 Banner -->
+    <div class="max-w-md mx-auto px-4 pt-3">
+        <div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-4 text-white shadow-md relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-xs text-orange-100 font-medium">🌿 都蘭在地風土嚴選</p>
+                <h2 class="text-xl font-black mt-0.5">刺蔥慢燉牛肉麵</h2>
+                <p class="text-xs text-orange-100 mt-1">老滷慢燉 4 小時・香氣濃郁・麵體現煮</p>
+                <div class="mt-3 flex items-center gap-2">
+                    <span class="text-lg font-black bg-white/20 px-2.5 py-0.5 rounded-lg">NT$ 180</span>
+                    <button onclick="addToCart(13, '都蘭刺蔥牛肉麵', 180)" class="bg-white text-orange-600 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm active:scale-95 transition-transform flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> 直接點這道
+                    </button>
+                </div>
+            </div>
+            <i class="fa-solid fa-bowl-food absolute -right-3 -bottom-3 text-7xl text-white/15"></i>
+        </div>
+    </div>
+
+    <!-- 菜單主體列表 -->
+    <main class="max-w-md mx-auto px-4 pt-5">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-extrabold text-gray-900 flex items-center gap-1.5">
+                <i class="fa-solid fa-utensils text-orange-500"></i> 熱門招牌餐點
+            </h3>
+            <span class="text-xs text-gray-400" id="itemCount">載入中...</span>
+        </div>
+
+        <!-- 餐點卡片容器 -->
+        <div id="menuContainer" class="space-y-3">
+            <!-- 骨架載入動畫 (Skeleton) -->
+            <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 animate-pulse flex gap-3">
+                <div class="w-20 h-20 bg-gray-200 rounded-xl"></div>
+                <div class="flex-1 space-y-2 py-1">
+                    <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+                    <div class="h-3 bg-gray-100 rounded w-full"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/4 mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部購物車浮動列 (有品項時自動滑出) -->
+    <div id="cartBar" class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-2xl p-3 transition-transform duration-300 translate-y-full">
+        <div class="max-w-md mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 cursor-pointer" onclick="openCartModal()">
+                <div class="relative bg-orange-500 text-white w-11 h-11 rounded-xl flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    <span id="cartCountBadge" class="absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500">合計金額</div>
+                    <div class="text-lg font-black text-gray-900 leading-tight">NT$ <span id="cartTotal">0</span></div>
+                </div>
+            </div>
+            <button onclick="openCheckoutModal()" class="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-orange-500/25 active:scale-95 transition-transform flex items-center justify-center gap-1.5 text-sm">
+                <span>前往結帳</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 結帳彈窗 Modal -->
+    <div id="checkoutModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[90vh] overflow-y-auto p-5 shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-orange-500"></i> 確認訂單與取餐
+                </h3>
+                <button onclick="closeCheckoutModal()" class="text-gray-400 hover:text-gray-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- 購物明細簡述 -->
+            <div class="my-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                <div class="text-xs font-bold text-gray-500 mb-2">已選購項目：</div>
+                <div id="modalCartItems" class="space-y-1.5 text-xs text-gray-700"></div>
+                <div class="border-t border-gray-200 mt-2.5 pt-2 flex justify-between font-black text-sm">
+                    <span>總計金額</span>
+                    <span class="text-orange-600">NT$ <span id="modalCartTotal">0</span></span>
+                </div>
+            </div>
+
+            <!-- 取餐人資料 Form -->
+            <form id="orderForm" onsubmit="submitOrder(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">取餐方式</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center justify-center gap-2 border rounded-xl py-2 px-3 cursor-pointer has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50/50 has-[:checked]:text-orange-600 text-xs font-bold">
+                            <input type="radio" name="orderType" value="collection" checked class="hidden">
+                            <i class="fa-solid fa-store"></i> 外帶自取
+                        </label>
+                        <label class="flex items-center justify-center gap-2 border rounded-xl py-2 px-3 cursor-pointer has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50/50 has-[:checked]:text-orange-600 text-xs font-bold">
+                            <input type="radio" name="orderType" value="delivery" class="hidden">
+                            <i class="fa-solid fa-motorcycle"></i> 外送到府 (車隊)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">姓名 <span class="text-rose-500">*</span></label>
+                        <input type="text" id="custName" required placeholder="例如：陳先生" class="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">手機電話 <span class="text-rose-500">*</span></label>
+                        <input type="tel" id="custPhone" required placeholder="0912345678" class="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">備註說明 (可不填)</label>
+                    <input type="text" id="custComment" placeholder="例如：不加蔥、麵煮軟一點" class="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-orange-500 outline-none">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-3.5 rounded-xl shadow-lg shadow-orange-500/30 active:scale-95 transition-all text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>立即送出訂單 (秒發 TastyIgniter)</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 成功通知 Modal -->
+    <div id="successModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl animate-bounce-short">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 class="text-lg font-black text-gray-900">下單成功！廚房接單中</h3>
+            <p class="text-xs text-gray-500 mt-1">訂單編號：<span id="resOrderId" class="font-bold text-orange-600">#---</span></p>
+            <p class="text-xs text-gray-400 mt-2 bg-gray-50 p-3 rounded-xl border border-gray-100 text-left leading-relaxed">
+                🎉 您的訂單已透過 REST API 極速注入 TastyIgniter 系統，出單機正在備料印單！感謝您的支持！
+            </p>
+            <button onclick="resetOrder()" class="mt-4 w-full bg-gray-900 text-white font-bold py-2.5 rounded-xl text-xs">
+                完成並返回
+            </button>
+        </div>
+    </div>
+
+    <!-- 核心互動邏輯與 API 串接 -->
+    <script>
+        // 後端 TastyIgniter API 伺服器端點 (GCP)
+        const API_BASE = 'https://34.9.115.248.nip.io';
+        // 管理員 API Token (先前在伺服器產生的專屬密鑰)
+        const API_TOKEN = '1|fvRlsU5b515q3L8L9LLLa616AikXdaZJzD7D9eg0pTKv8TxdHDEkn9TZMekBpk19QVU7ZjQVN2fZ0uFw';
+
+        // 購物車記憶體狀態
+        let cart = {}; // { menu_id: { name, price, qty } }
+
+        // 預設示範菜單 (在 API 載入前或斷網時保證畫面不崩潰)
+        const fallbackMenus = [
+            {
+                id: 13,
+                name: '都蘭刺蔥牛肉麵',
+                price: 180,
+                desc: '嚴選在地特色香料慢火燉煮，湯頭濃郁，肉質軟嫩。',
+                badge: '招牌必點'
+            },
+            {
+                id: 1,
+                name: '手作香脆炸糖球 (Puff-Puff)',
+                price: 50,
+                desc: '外酥內軟、裹上糖粉的經典點心，午後下午茶最佳選擇。',
+                badge: '人氣點心'
+            },
+            {
+                id: 2,
+                name: '黃金蘇格蘭蛋 (Scotch Egg)',
+                price: 60,
+                desc: '鮮嫩水煮蛋裹上厚實手打絞肉與麵包粉，金黃酥脆。',
+                badge: '限量供應'
+            }
+        ];
+
+        // 頁面載入初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchMenusFromAPI();
+        });
+
+        // 透過 API 讀取 TastyIgniter 菜單
+        async function fetchMenusFromAPI() {
+            try {
+                const res = await fetch(`${API_BASE}/api/menus`, {
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!res.ok) throw new Error('API fetch failed');
+                const data = await res.json();
+                renderMenus(data.data || []);
+            } catch (err) {
+                console.warn('使用 Fallback 菜單載入:', err);
+                renderFallbackMenus();
+            }
+        }
+
+        // 渲染菜單
+        function renderMenus(apiMenus) {
+            const container = document.getElementById('menuContainer');
+            if (!apiMenus || apiMenus.length === 0) {
+                renderFallbackMenus();
+                return;
+            }
+
+            container.innerHTML = '';
+            document.getElementById('itemCount').innerText = `共 ${apiMenus.length} 道佳餚`;
+
+            apiMenus.forEach(item => {
+                const attr = item.attributes;
+                const price = Math.round(attr.menu_price);
+                const card = document.createElement('div');
+                card.className = 'bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between gap-3 hover:shadow-md transition-shadow';
+                card.innerHTML = `
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-extrabold text-gray-900 text-sm">${attr.menu_name}</h4>
+                            ${item.id == 13 ? '<span class="bg-red-50 text-red-600 text-[10px] font-black px-1.5 py-0.5 rounded">都蘭限定</span>' : ''}
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">${attr.menu_description || '店家特製招牌料理，現點現做。'}</p>
+                        <div class="mt-2 text-sm font-black text-orange-600">NT$ ${price}</div>
+                    </div>
+                    <button onclick="addToCart(${item.id}, '${attr.menu_name.replace(/'/g, "\\'")}', ${price})" class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 font-bold flex items-center justify-center active:scale-90 transition-transform hover:bg-orange-500 hover:text-white">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderFallbackMenus() {
+            const container = document.getElementById('menuContainer');
+            container.innerHTML = '';
+            document.getElementById('itemCount').innerText = `共 ${fallbackMenus.length} 道精選`;
+            fallbackMenus.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between gap-3';
+                card.innerHTML = `
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-extrabold text-gray-900 text-sm">${item.name}</h4>
+                            <span class="bg-orange-50 text-orange-600 text-[10px] font-bold px-1.5 py-0.5 rounded">${item.badge}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">${item.desc}</p>
+                        <div class="mt-2 text-sm font-black text-orange-600">NT$ ${item.price}</div>
+                    </div>
+                    <button onclick="addToCart(${item.id}, '${item.name}', ${item.price})" class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 font-bold flex items-center justify-center active:scale-90 transition-transform hover:bg-orange-500 hover:text-white">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 加入購物車
+        function addToCart(id, name, price) {
+            if (!cart[id]) {
+                cart[id] = { name, price, qty: 1 };
+            } else {
+                cart[id].qty += 1;
+            }
+            updateCartUI();
+        }
+
+        // 更新購物車顯示狀態
+        function updateCartUI() {
+            let total = 0;
+            let count = 0;
+            for (let id in cart) {
+                total += cart[id].price * cart[id].qty;
+                count += cart[id].qty;
+            }
+
+            const cartBar = document.getElementById('cartBar');
+            if (count > 0) {
+                cartBar.classList.remove('translate-y-full');
+            } else {
+                cartBar.classList.add('translate-y-full');
+            }
+
+            document.getElementById('cartTotal').innerText = total;
+            document.getElementById('cartCountBadge').innerText = count;
+        }
+
+        // 打開結帳 Modal
+        function openCheckoutModal() {
+            const listContainer = document.getElementById('modalCartItems');
+            listContainer.innerHTML = '';
+            let total = 0;
+
+            for (let id in cart) {
+                const item = cart[id];
+                total += item.price * item.qty;
+                const row = document.createElement('div');
+                row.className = 'flex justify-between items-center';
+                row.innerHTML = `
+                    <span>${item.name} × ${item.qty}</span>
+                    <span class="font-bold">NT$ ${item.price * item.qty}</span>
+                `;
+                listContainer.appendChild(row);
+            }
+
+            document.getElementById('modalCartTotal').innerText = total;
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        // 送出訂單至 TastyIgniter 後端 API
+        async function submitOrder(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>正在拋送訂單至後台...</span>`;
+
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const comment = document.getElementById('custComment').value.trim();
+            const orderType = document.querySelector('input[name="orderType"]:checked').value;
+
+            // 組裝 form-urlencoded 參數 (TastyIgniter API 標準驗證規格)
+            const formData = new URLSearchParams();
+            formData.append('first_name', name);
+            formData.append('last_name', '(線上客戶)');
+            formData.append('email', `${phone}@polaris.guest`);
+            formData.append('telephone', phone);
+            formData.append('order_type', orderType);
+            formData.append('location_id', '1'); // 預設門市 ID: 家宅
+            formData.append('payment', 'cod');   // 現金到付/現場自取現金
+            if (comment) formData.append('comment', comment);
+
+            // 加入選購餐點
+            let idx = 0;
+            for (let id in cart) {
+                formData.append(`menus[${idx}][menu_id]`, id);
+                formData.append(`menus[${idx}][quantity]`, cart[id].qty);
+                idx++;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                });
+
+                const json = await res.json();
+
+                if (res.status === 201 || res.status === 200) {
+                    const newOrderId = json.data ? json.data.id : 'OK';
+                    document.getElementById('resOrderId').innerText = `#${newOrderId}`;
+                    closeCheckoutModal();
+                    document.getElementById('successModal').classList.remove('hidden');
+                } else {
+                    alert('下單未成功：' + (json.message || '請檢查輸入欄位'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('連線伺服器逾時，請確認網路狀態後重試！');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalContent;
+            }
+        }
+
+        // 下單完成後重置狀態
+        function resetOrder() {
+            cart = {};
+            updateCartUI();
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('orderForm').reset();
+        }
+    </script>
+</body>
+</html>
